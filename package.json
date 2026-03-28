@@ -1,0 +1,46 @@
+{
+  "name": "@thicket-team/mcp-calculators",
+  "version": "1.0.0",
+  "description": "Free calculator tools for AI assistants. Calculate TDEE, BMI, mortgage payments, compound interest, and more.",
+  "type": "module",
+  "bin": {
+    "mcp-calculators": "./build/index.js"
+  },
+  "main": "./build/index.js",
+  "scripts": {
+    "build": "tsc && chmod 755 build/index.js",
+    "start": "node build/index.js",
+    "dev": "tsc --watch"
+  },
+  "files": [
+    "build"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "calculator",
+    "tdee",
+    "bmi",
+    "mortgage",
+    "compound-interest",
+    "take-home-pay",
+    "ai-tools",
+    "claude",
+    "chatgpt"
+  ],
+  "author": "Thicket (thicket.sh)",
+  "license": "MIT",
+  "homepage": "https://thicket.sh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/master-traffic-empire/mcp-calculators"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
