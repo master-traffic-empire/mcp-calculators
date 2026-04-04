@@ -14,7 +14,7 @@ import { registerPassword } from "./tools/password.js";
 
 const server = new McpServer({
   name: "@thicket/mcp-calculators",
-  version: "1.0.0",
+  version: "1.0.1",
 });
 
 // Register all calculator tools
