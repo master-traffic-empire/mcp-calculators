@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.master-traffic-empire/mcp-calculators",
   "title": "MCP Calculators",
-  "description": "Free calculator tools for AI assistants. Calculate TDEE, BMI, mortgage payments, compound interest, take-home pay (all 50 US states), loan payment, percentage, and password strength. No auth required. 500+ unit tests.",
+  "description": "Free calculator tools for AI assistants: TDEE, BMI, mortgage, compound interest, and more.",
   "repository": {
     "url": "https://github.com/master-traffic-empire/mcp-calculators",
     "source": "github"
