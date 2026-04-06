@@ -1,8 +1,7 @@
 {
   "name": "@thicket-team/mcp-calculators",
-  "mcpName": "io.github.master-traffic-empire/mcp-calculators",
-  "version": "1.0.1",
-  "description": "Free calculator tools for AI assistants. Calculate TDEE, BMI, mortgage payments, compound interest, and more.",
+  "version": "1.1.0",
+  "description": "Free calculator, unit converter, and statistics tools for AI assistants. Calculate TDEE, BMI, mortgage, compound interest, convert units, and compute stats.",
   "type": "module",
   "bin": {
     "mcp-calculators": "./build/index.js"
@@ -19,14 +18,24 @@
   "keywords": [
     "mcp",
     "model-context-protocol",
+    "mcp-server",
+    "mcp-tools",
     "calculator",
+    "unit-converter",
+    "statistics",
+    "math",
     "tdee",
     "bmi",
     "mortgage",
     "compound-interest",
     "take-home-pay",
+    "length-converter",
+    "weight-converter",
+    "temperature-converter",
+    "descriptive-statistics",
     "ai-tools",
     "claude",
+    "cursor",
     "chatgpt"
   ],
   "author": "Thicket (thicket.sh)",

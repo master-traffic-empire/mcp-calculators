@@ -345,6 +345,206 @@ export function calculateLoanPayment(
   };
 }
 
+// ── Unit Converter ────────────────────────────────────────────────────────────
+
+type UnitCategory = "length" | "weight" | "volume" | "area";
+
+interface ConversionResult {
+  converted: number;
+  factor: number;
+  category: UnitCategory;
+  error?: never;
+}
+
+interface ConversionError {
+  error: string;
+  converted?: never;
+  factor?: never;
+  category?: never;
+}
+
+// All values stored as SI base unit (m, kg, m³, m²)
+const LENGTH_TO_METERS: Record<string, number> = {
+  mm: 0.001,
+  cm: 0.01,
+  m: 1,
+  km: 1000,
+  in: 0.0254,
+  ft: 0.3048,
+  yd: 0.9144,
+  mi: 1609.344,
+};
+
+const WEIGHT_TO_KG: Record<string, number> = {
+  mg: 0.000001,
+  g: 0.001,
+  kg: 1,
+  t: 1000,
+  oz: 0.028349523125,
+  lb: 0.45359237,
+  st: 6.35029318,
+};
+
+const VOLUME_TO_LITERS: Record<string, number> = {
+  ml: 0.001,
+  l: 1,
+  fl_oz: 0.0295735296,
+  cup: 0.2365882365,
+  pt: 0.473176473,
+  qt: 0.946352946,
+  gal: 3.785411784,
+};
+
+const AREA_TO_M2: Record<string, number> = {
+  mm2: 0.000001,
+  cm2: 0.0001,
+  m2: 1,
+  km2: 1000000,
+  in2: 0.00064516,
+  ft2: 0.09290304,
+  yd2: 0.83612736,
+  acre: 4046.8564224,
+  ha: 10000,
+};
+
+function detectCategory(unit: string): { category: UnitCategory; table: Record<string, number> } | null {
+  if (unit in LENGTH_TO_METERS) return { category: "length", table: LENGTH_TO_METERS };
+  if (unit in WEIGHT_TO_KG) return { category: "weight", table: WEIGHT_TO_KG };
+  if (unit in VOLUME_TO_LITERS) return { category: "volume", table: VOLUME_TO_LITERS };
+  if (unit in AREA_TO_M2) return { category: "area", table: AREA_TO_M2 };
+  return null;
+}
+
+export function convertUnit(
+  value: number,
+  fromUnit: string,
+  toUnit: string
+): ConversionResult | ConversionError {
+  const from = detectCategory(fromUnit);
+  const to = detectCategory(toUnit);
+
+  if (!from) return { error: `Unknown unit: "${fromUnit}". Supported: ${Object.keys(LENGTH_TO_METERS).concat(Object.keys(WEIGHT_TO_KG)).concat(Object.keys(VOLUME_TO_LITERS)).concat(Object.keys(AREA_TO_M2)).join(", ")}` };
+  if (!to) return { error: `Unknown unit: "${toUnit}".` };
+  if (from.category !== to.category) return { error: `Cannot convert ${from.category} unit "${fromUnit}" to ${to.category} unit "${toUnit}"` };
+
+  const factor = from.table[fromUnit] / to.table[toUnit];
+  const converted = Math.round(value * factor * 1e10) / 1e10;
+
+  return { converted, factor: Math.round(factor * 1e10) / 1e10, category: from.category };
+}
+
+export function convertTemperature(
+  value: number,
+  from: "C" | "F" | "K",
+  to: "C" | "F" | "K"
+): { converted: number } {
+  if (from === to) return { converted: Math.round(value * 1e6) / 1e6 };
+
+  // Convert to Celsius first
+  let celsius: number;
+  if (from === "C") celsius = value;
+  else if (from === "F") celsius = (value - 32) * (5 / 9);
+  else celsius = value - 273.15;
+
+  // Convert from Celsius to target
+  let result: number;
+  if (to === "C") result = celsius;
+  else if (to === "F") result = celsius * (9 / 5) + 32;
+  else result = celsius + 273.15;
+
+  return { converted: Math.round(result * 1e6) / 1e6 };
+}
+
+// ── Statistics ────────────────────────────────────────────────────────────────
+
+export function calculateStatistics(
+  values: number[],
+  customPercentiles?: number[]
+): {
+  count: number;
+  sum: number;
+  min: number;
+  max: number;
+  range: number;
+  mean: number;
+  median: number;
+  mode: number[];
+  std_dev_sample: number;
+  std_dev_population: number;
+  variance_sample: number;
+  variance_population: number;
+  q1: number;
+  q2: number;
+  q3: number;
+  iqr: number;
+  percentiles?: Array<{ percentile: number; value: number }>;
+} {
+  const sorted = [...values].sort((a, b) => a - b);
+  const n = sorted.length;
+
+  const sum = sorted.reduce((acc, v) => acc + v, 0);
+  const mean = sum / n;
+
+  // Median
+  const median =
+    n % 2 === 0
+      ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+      : sorted[Math.floor(n / 2)];
+
+  // Mode (all values with maximum frequency)
+  const freq = new Map<number, number>();
+  for (const v of sorted) freq.set(v, (freq.get(v) ?? 0) + 1);
+  const maxFreq = Math.max(...freq.values());
+  const mode = maxFreq > 1 ? [...freq.entries()].filter(([, f]) => f === maxFreq).map(([v]) => v) : [];
+
+  // Variance
+  const squaredDiffs = sorted.map((v) => Math.pow(v - mean, 2));
+  const sumSquaredDiffs = squaredDiffs.reduce((acc, v) => acc + v, 0);
+  const variancePop = sumSquaredDiffs / n;
+  const varianceSample = n > 1 ? sumSquaredDiffs / (n - 1) : 0;
+
+  const round = (v: number) => Math.round(v * 1e8) / 1e8;
+
+  // Percentile helper (linear interpolation)
+  function percentile(p: number): number {
+    if (n === 1) return sorted[0];
+    const rank = (p / 100) * (n - 1);
+    const lower = Math.floor(rank);
+    const upper = Math.ceil(rank);
+    const frac = rank - lower;
+    return round(sorted[lower] * (1 - frac) + sorted[upper] * frac);
+  }
+
+  const q1 = percentile(25);
+  const q2 = percentile(50);
+  const q3 = percentile(75);
+
+  const result: ReturnType<typeof calculateStatistics> = {
+    count: n,
+    sum: round(sum),
+    min: sorted[0],
+    max: sorted[n - 1],
+    range: round(sorted[n - 1] - sorted[0]),
+    mean: round(mean),
+    median: round(median),
+    mode,
+    std_dev_sample: round(Math.sqrt(varianceSample)),
+    std_dev_population: round(Math.sqrt(variancePop)),
+    variance_sample: round(varianceSample),
+    variance_population: round(variancePop),
+    q1,
+    q2,
+    q3,
+    iqr: round(q3 - q1),
+  };
+
+  if (customPercentiles && customPercentiles.length > 0) {
+    result.percentiles = customPercentiles.map((p) => ({ percentile: p, value: percentile(p) }));
+  }
+
+  return result;
+}
+
 // ── Password Generator ────────────────────────────────────────────────────────
 
 export function generatePassword(

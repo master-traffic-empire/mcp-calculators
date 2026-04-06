@@ -11,23 +11,36 @@ import { registerTakeHomePay } from "./tools/take-home-pay.js";
 import { registerPercentage } from "./tools/percentage.js";
 import { registerLoan } from "./tools/loan.js";
 import { registerPassword } from "./tools/password.js";
+import { registerUnitConverter } from "./tools/unit-converter.js";
+import { registerStatistics } from "./tools/statistics.js";
 
-const server = new McpServer({
-  name: "@thicket/mcp-calculators",
-  version: "1.0.1",
-});
+function createServer() {
+  const server = new McpServer({
+    name: "@thicket/mcp-calculators",
+    version: "1.1.0",
+  });
 
-// Register all calculator tools
-registerTDEE(server);
-registerBMI(server);
-registerMortgage(server);
-registerCompoundInterest(server);
-registerTakeHomePay(server);
-registerPercentage(server);
-registerLoan(server);
-registerPassword(server);
+  registerTDEE(server);
+  registerBMI(server);
+  registerMortgage(server);
+  registerCompoundInterest(server);
+  registerTakeHomePay(server);
+  registerPercentage(server);
+  registerLoan(server);
+  registerPassword(server);
+  registerUnitConverter(server);
+  registerStatistics(server);
+
+  return server;
+}
+
+// Smithery sandbox support — returns a fresh server instance for scanning
+export function createSandboxServer() {
+  return createServer();
+}
 
 async function main() {
+  const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("@thicket/mcp-calculators server running on stdio");
