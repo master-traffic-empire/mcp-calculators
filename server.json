@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.master-traffic-empire/calculators",
+  "description": "Free calculator tools for AI assistants — TDEE, BMI, mortgage payments, compound interest, take-home pay, percentage, loan, and password generator. 8 tools, no API key required.",
+  "repository": {
+    "url": "https://github.com/master-traffic-empire/mcp-calculators",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@thicket-team/mcp-calculators",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
