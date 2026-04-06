@@ -1,5 +1,6 @@
 {
   "name": "@thicket-team/mcp-calculators",
+  "mcpName": "io.github.master-traffic-empire/mcp-calculators",
   "version": "1.0.1",
   "description": "Free calculator tools for AI assistants. Calculate TDEE, BMI, mortgage payments, compound interest, and more.",
   "type": "module",
